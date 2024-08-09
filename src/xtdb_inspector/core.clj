@@ -32,37 +32,37 @@
    (let [ctx {:xtdb-node xtdb-node
               :allow-editing? allow-editing?
               :wrap-page-fn wrap-page-fn}]
-     (ring-params/wrap-params
-      (routes
-       (context/connection-handler "/__ripley-live" :ping-interval 45)
-       (GET (->route "/doc") req
-         (page ctx req #'page.doc/render-form))
-       (GET (->route "/doc/:doc-id") req
-         (page ctx req #'page.doc/render))
-       (GET (->route "/query") req
-         (page ctx req #'page.query/render))
-       (POST (->route "/query/export") req
-         (page.query/export-query ctx req))
-       (GET (->route "/query/:query") req
-         (page ctx req #'page.query/render))
-       (GET (->route "/attr") req
-         (page ctx req #'page.attr/render))
-       (GET (->route "/attr/:keyword") req
-         (page ctx req #'page.attr/render))
-       (GET (->route "/attr/:namespace/:keyword") req
-         (page ctx req #'page.attr/render))
-       (GET (->route "/tx") req
-         (page ctx req #'page.tx/render))
-       (GET (->route "/dashboard") req
-         (page ctx req #'page.dashboard/render-listing))
-       (GET (->route "/dashboard/:dashboard") req
-         (page ctx req #'page.dashboard/render))
-       (route/resources "/"))))))
+     (routes
+      (context/connection-handler "/__ripley-live" :ping-interval 45)
+      (GET (->route "/doc") req
+        (page ctx req #'page.doc/render-form))
+      (GET (->route "/doc/:doc-id") req
+        (page ctx req #'page.doc/render))
+      (GET (->route "/query") req
+        (page ctx req #'page.query/render))
+      (POST (->route "/query/export") req
+        (page.query/export-query ctx req))
+      (GET (->route "/query/:query") req
+        (page ctx req #'page.query/render))
+      (GET (->route "/attr") req
+        (page ctx req #'page.attr/render))
+      (GET (->route "/attr/:keyword") req
+        (page ctx req #'page.attr/render))
+      (GET (->route "/attr/:namespace/:keyword") req
+        (page ctx req #'page.attr/render))
+      (GET (->route "/tx") req
+        (page ctx req #'page.tx/render))
+      (GET (->route "/dashboard") req
+        (page ctx req #'page.dashboard/render-listing))
+      (GET (->route "/dashboard/:dashboard") req
+        (page ctx req #'page.dashboard/render))
+      (route/resources "/")))))
 
 (defn start [{:keys [port xtdb-node allow-editing?]
               :or {port 3000
                    allow-editing? true}}]
   {:pre [(some? xtdb-node)]}
   (http-kit/run-server
-   (inspector-handler xtdb-node {:allow-editing? allow-editing?})
+   (ring-params/wrap-params
+     (inspector-handler xtdb-node {:allow-editing? allow-editing?}))
    {:port port}))
